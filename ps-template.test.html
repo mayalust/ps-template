@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html
+    lang="en">
+<head>
+  <meta
+      charset="UTF-8">
+  <script type="text/javascript" src="./ps-template.js"></script>
+  <title>
+    Title</title>
+</head>
+<body>
+  <div id="testarea"></div>
+  <script>
+    var testcases = [], testarea = document.getElementById("testarea");
+    function check(node, tc){
+      var checkParams = ["nodeType", "nodeValue", "tag"];
+      for(var i = 0, n = []; i < checkParams.length; i++){
+        n[0] = node[checkParams[i]];
+        n[1] = tc[checkParams[i]];
+        if(n[0] != n[1]){
+          console.dir(node);
+          console.error("'s " + checkParams[i] + "[" + n[0] +"]and vnode", tc, "'s " + checkParams[i] + "[" + n[1] + "] is not the same");
+        }
+      }
+    }
+    function recursive(node, tc, depth){
+      depth ? check(node, tc) : null;
+      for(var i = 0; i < node.childNodes.length; i++){
+        recursive(node.childNodes[i], tc.children[i], depth+1);
+      }
+    }
+    function assert(json){
+      testarea.innerHTML = this["case"];
+      recursive(testarea, json, 0)
+    }
+    testcases[0] = {
+      "case" : "asd<div ng-repeat=\"item in repeats\" style=\"color:red\">\n\
+        <input type=\"radio\"/>\n\
+        <div class=\"form-control\">123</div>\
+      </div>def",
+      "assert" : assert
+    };
+    testcases[1] = {
+      "case" : "\
+    <div>\
+      <!--ppp   \
+      <div>8</div>\
+      <span>123</span>\
+    </div>",
+      "assert" : assert
+    };
+    for(var i = 0, m, p, assert; i < testcases.length; i++){
+      m = psTemplate.html2json(testcases[i]["case"])
+      p = psTemplate.json2html(m);
+      testcases[i]["assert"](m);
+      console.log(testcases[i]["case"]);
+      console.log(p);
+    }
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
-  "name": "ps-template",
-  "version": "1.0.0",
+  "name": "proudsmart-template",
+  "version": "1.0.1",
   "description": "proudsmart template",
   "main": "ps-template.js",
   "scripts": {
