@@ -1,0 +1,22 @@
+{
+  "name": "ps-template",
+  "version": "1.0.0",
+  "description": "proudsmart template",
+  "main": "ps-template.js",
+  "scripts": {
+    "test": "node ps-template.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mayalust/ps-template.git"
+  },
+  "keywords": [
+    "template"
+  ],
+  "author": "proudsmart",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mayalust/ps-template/issues"
+  },
+  "homepage": "https://github.com/mayalust/ps-template#readme"
+}
