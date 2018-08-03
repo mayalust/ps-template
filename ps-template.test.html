@@ -42,18 +42,17 @@
     };
     testcases[1] = {
       "case" : "\
-    <div>\
-      <!--ppp   \
-      <div>8</div>\
-      <span>123</span>\
-    </div>",
+        <div>\
+          <!--ppp-->\
+          <div>8</div>\
+          <span>123</span>\
+        </div>",
       "assert" : assert
     };
     for(var i = 0, m, p, assert; i < testcases.length; i++){
-      m = psTemplate.html2json(testcases[i]["case"])
-      p = psTemplate.json2html(m);
+      m = psTemplate.html2json(testcases[i]["case"]);
+      p = psTemplate.beautify(testcases[i]["case"]);
       testcases[i]["assert"](m);
-      console.log(testcases[i]["case"]);
       console.log(p);
     }
   </script>

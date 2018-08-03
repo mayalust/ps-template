@@ -12,8 +12,8 @@
   }
 })(this, function(){
   function html2json(str){
-    const blank = "(?:[\\s\\n])"
-    quate = "\\'(?:[^\\\'\\\\]|(?:\\\\\\'))+\\'|\\\"(?:[^\\\"\\\\]|(?:\\\\\\\"))+\\\"",
+    const blank = "(?:[\\s\\n])",
+      quate = "\\'(?:[^\\\'\\\\]|(?:\\\\\\'))+\\'|\\\"(?:[^\\\"\\\\]|(?:\\\\\\\"))+\\\"",
       attrLike = blank + "+[\\w\\-$]+" + blank + "*=" + blank + "*(?:" + quate + ")",
       ATTRS = "([\\w\\-$]+)" + blank + "*=" + blank + "*(" + quate + ")",
       COMMONS = "\\<\\!\\--",
@@ -128,32 +128,50 @@
     pushTextNode(root.children, str);
     return root;
   }
-  function json2html(json){
+  function json2html(json, beautify){
+    function format(str, depth){
+      var n = "", blankReturn = /^[\s\n]*$/g;
+      while( depth-- > 0 ){
+        n += "  "
+      };
+      return beautify ? ( !blankReturn.test(removeAllReturn(str))
+        ? n + removeAllReturn(str) + "\n" : "" ) : str ;
+    }
     let renderMethods = {
       header : {
-        1 : function(node){
-          switch (typeof node.localName === "string" ? node.localName.toUpperCase : "") {
+        1 : function(node, depth){
+          switch (typeof node.localName === "string" ? node.localName.toUpperCase() : "") {
+            case "INPUT" :
+              return format("<" + node.localName + params2String(node.params) + "/>", depth);
             default :
-              return "<" + node.localName + params2String(node.params) + ">";
+              return format("<" + node.localName + params2String(node.params) + ">", depth);
           }
         },
-        3 : function(node){
-          return node.nodeValue;
+        3 : function(node, depth){
+          return format(node.nodeValue, depth);
         },
-        8 : function(node){
-          return "<!--" + node.nodeValue + "-->";
+        8 : function(node, depth){
+          return format("<!--" + node.nodeValue + "-->", depth);
         }
       },
       tail : {
-        1 : function(node){
-          switch (typeof node.localName === "string" ? node.localName.toUpperCase : "") {
+        1 : function(node, depth){
+          switch (typeof node.localName === "string" ? node.localName.toUpperCase() : "") {
             case "INPUT" :
               return "";
             default :
-              return "</" + node.localName + ">";
+              return format("</" + node.localName + ">", depth);
           }
         }
       }
+    }
+    function removeAllReturn(str){
+      var rs = "";
+      for(var i = 0; i < str.length; i++){
+        rs += str.charAt(i) !== "\n"
+          ? str.charAt(i) : "";
+      }
+      return rs;
     }
     function params2String(params){
       var str = "";
@@ -162,28 +180,32 @@
       }
       return str;
     }
-    function renderHead(node){
+    function renderHead(node, depth){
       return renderMethods.header[node.nodeType]
-        ? renderMethods.header[node.nodeType](node)
+        ? renderMethods.header[node.nodeType](node, depth)
         : "";
     }
-    function renderTail(node){
+    function renderTail(node, depth){
       return renderMethods.tail[node.nodeType]
-        ? renderMethods.tail[node.nodeType](node)
+        ? renderMethods.tail[node.nodeType](node, depth)
         : "";
     }
     function recursive(node, depth){
-      var str = renderHead(node);
+      var str = renderHead(node, depth);
       for(var i = 0; i < (node.children ? node.children.length : 0); i++){
         str += recursive(node.children[i], depth+1);
       }
-      str += renderTail(node);
+      str += renderTail(node, depth);
       return str;
     }
-    return recursive(json, 0)
+    return recursive(json, -1)
+  }
+  function beautify(str){
+    return json2html(html2json(str), true);
   }
   return {
     html2json : html2json,
-    json2html : json2html
+    json2html : json2html,
+    beautify : beautify
   }
 });
