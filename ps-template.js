@@ -6,7 +6,7 @@
       window.psTemplate = factory();
     }
   } else {
-    if(typeof module !== "undefined" && typeof module.exports === "function" ){
+    if(typeof module !== "undefined" && typeof module.exports !== "undefined" ){
       module.exports = factory();
     }
   }
