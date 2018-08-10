@@ -11,6 +11,17 @@
     }
   }
 })(this, function(){
+  const tostring = Object.prototype.toString,
+    isUndefined = isType("Undefined"),
+    isNull = isType("Null");
+  function isType(type){
+    return function(target){
+      return tostring.call(target) === "[object " + type + "]";
+    }
+  }
+  function isEmpty(obj){
+    return isUndefined(obj) || isNull(obj);
+  }
   function html2json(str){
     const blank = "(?:[\\s\\n])",
       quate = "\\'(?:[^\\\'\\\\]|(?:\\\\\\'))+\\'|\\\"(?:[^\\\"\\\\]|(?:\\\\\\\"))+\\\"",
@@ -18,7 +29,7 @@
       ATTRS = "([\\w\\-$]+)" + blank + "*=" + blank + "*(" + quate + ")",
       COMMONS = "\\<\\!\\--",
       avaliableWord = "^" + blank + "*([^\\s\\n]|[^\\s\\n].*[^\\s\\n])" + blank + "*$",
-      TAG = "\\<" + blank + "*(\\w+)((?:" + attrLike + ")*)" + blank + "*(\\\/)?" + blank + "*\\>";
+      TAG = "\\<" + blank + "*([\\w-$@]+)((?:" + attrLike + ")*)" + blank + "*(\\\/)?" + blank + "*\\>";
     let tagExp = new RegExp(TAG, "g"),
       match, tagStack = [], textStack = [],
       root = rs = {
@@ -97,7 +108,7 @@
       while(item = textStack.pop()){
         str = item + str;
       }
-      str && arr.push({
+      !new RegExp("^" + blank + "*$").test(str) && arr.push({
         localName : "text",
         nodeType : 3,
         nodeValue : str
@@ -130,12 +141,16 @@
   }
   function json2html(json, beautify){
     function format(str, depth){
-      var n = "", blankReturn = /^[\s\n]*$/g;
+      var n = "", blankReturn = /^[\s\n]*$/g, beforeafterBlank = /^[\s\n]+([^\s\n](?:.*[^\s\n])?)[\s\n]+$/g;
+      function removeBeforeAfterBlank(str){
+        var match = /^[\s\n]*([^\s\n](?:.*[^\s\n])?)[\s\n]*$/g.exec(str);
+        return match ? match[1] : "";
+      }
       while( depth-- > 0 ){
-        n += "  "
+        n += "\f\f";
       };
       return beautify ? ( !blankReturn.test(removeAllReturn(str))
-        ? n + removeAllReturn(str) + "\n" : "" ) : str ;
+        ? n + removeBeforeAfterBlank(removeAllReturn(str)) + "\n" : "" ) : str ;
     }
     let renderMethods = {
       header : {
@@ -176,7 +191,10 @@
     function params2String(params){
       var str = "";
       for(var i in params){
-        str += " " + i + "=\"" + params[i] + "\"";
+        console.log(isEmpty( params[i] ));
+        str += " " + i + ( isEmpty( params[i] )
+          ? ""
+          : "=\"" + params[i] + "\"");
       }
       return str;
     }
