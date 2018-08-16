@@ -191,7 +191,6 @@
     function params2String(params){
       var str = "";
       for(var i in params){
-        console.log(isEmpty( params[i] ));
         str += " " + i + ( isEmpty( params[i] )
           ? ""
           : "=\"" + params[i] + "\"");
