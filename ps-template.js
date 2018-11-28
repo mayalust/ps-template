@@ -24,15 +24,13 @@
   }
   function html2json(str){
     const blank = `(?:[\\s\\n])`,
-      word = `[\\w-$@]`
-    quate = `\\'(?:[^\\\'\\\\]|(?:\\\\\\'))+\\'|\\\"(?:[^\\\"\\\\]|(?:\\\\\\\"))*\\\"`,
-      attrLike = `${ word }+${ blank }*(?:=${ blank }*(?:${ quate }))?${ blank }*"`,
-      ATTRS = `([\\w\\-$]+)${ blank }*=${ blank }*(${ quate })`,
+      word = `[\\w-$@]`,
+      quate = `\\'(?:[^\\\'\\\\]|(?:\\\\\\'))+\\'|\\\"(?:[^\\\"\\\\]|(?:\\\\\\\"))*\\\"`,
+      attrLike = `${ word }+${ blank }*(?:=${ blank }*(?:${ quate }))?${ blank }*`,
+      ATTRS = `(${ word }+)${ blank }*(?:=${ blank }*(${ quate }))?`,
       COMMONS = `\\<\\!\\--`,
-      avaliableWord = `^${ blank }*([^\\s\\n]|[^\\s\\n].*[^\\s\\n])${ blank }*$`,
-      TAG = `\\<${ blank }*([\\w-$@]+)${ blank }*(${ attrLike })*${ blank }*(\\\/)?${ blank }*\\>`;
-    let tagExp = new RegExp(TAG, "g"),
-      match, tagStack = [], textStack = [],
+      TAG = `\\<${ blank }*(${ word }+)${ blank }*((?:${ attrLike })*)${ blank }*(\\\/)?${ blank }*\\>`;
+    let match, tagStack = [], textStack = [],
       root = rs = {
         localName : "DocumentFragment",
         nodeType : 11,
@@ -99,7 +97,7 @@
       let match, obj = null;
       while(match = new RegExp(ATTRS, "g").exec(str)){
         obj = obj || {};
-        obj[match[1]] = match[2] ? match[2].slice(1,-1) : null;
+        obj[match[1]] = match[2] ? match[2].slice(1,-1) : "";
         str = str.slice(match[0].length + match.index);
       }
       return obj;
