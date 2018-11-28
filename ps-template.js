@@ -23,13 +23,14 @@
     return isUndefined(obj) || isNull(obj);
   }
   function html2json(str){
-    const blank = "(?:[\\s\\n])",
-      quate = "\\'(?:[^\\\'\\\\]|(?:\\\\\\'))+\\'|\\\"(?:[^\\\"\\\\]|(?:\\\\\\\"))+\\\"",
-      attrLike = blank + "+[\\w\\-$]+" + blank + "*=" + blank + "*(?:" + quate + ")",
-      ATTRS = "([\\w\\-$]+)" + blank + "*=" + blank + "*(" + quate + ")",
-      COMMONS = "\\<\\!\\--",
-      avaliableWord = "^" + blank + "*([^\\s\\n]|[^\\s\\n].*[^\\s\\n])" + blank + "*$",
-      TAG = "\\<" + blank + "*([\\w-$@]+)((?:" + attrLike + ")*)" + blank + "*(\\\/)?" + blank + "*\\>";
+    const blank = `(?:[\\s\\n])`,
+      word = `[\\w-$@]`
+    quate = `\\'(?:[^\\\'\\\\]|(?:\\\\\\'))+\\'|\\\"(?:[^\\\"\\\\]|(?:\\\\\\\"))*\\\"`,
+      attrLike = `${ word }+${ blank }*(?:=${ blank }*(?:${ quate }))?${ blank }*"`,
+      ATTRS = `([\\w\\-$]+)${ blank }*=${ blank }*(${ quate })`,
+      COMMONS = `\\<\\!\\--`,
+      avaliableWord = `^${ blank }*([^\\s\\n]|[^\\s\\n].*[^\\s\\n])${ blank }*$`,
+      TAG = `\\<${ blank }*([\\w-$@]+)${ blank }*(${ attrLike })*${ blank }*(\\\/)?${ blank }*\\>`;
     let tagExp = new RegExp(TAG, "g"),
       match, tagStack = [], textStack = [],
       root = rs = {
