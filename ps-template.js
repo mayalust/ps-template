@@ -95,7 +95,10 @@
               enumerable : false,
               value : rs
             });
-            writeContentToParentNodes(rs, str.slice(0, match[0].length + match.index));
+            rs = obj;
+            matchEnd ? writeContentToParentNodes(rs, str.slice(0,  matchEnd.index + matchEnd[0].length))
+              : writeContentToParentNodes(rs, str.slice(0,match[0].length + match.index));
+            rs = obj.parentNode;
             rs.childNodes = rs.childNodes || [];
             pushTextNode(rs.childNodes, str.slice(0, match.index));
             rs.childNodes.push(obj);

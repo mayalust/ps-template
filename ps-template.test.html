@@ -22,7 +22,7 @@
         if(n[0] == n[1]){
           console.log(key, "=", n[0], ",验证通过");
         } else {
-          console.error(key, "=", n[0], ",实际等于", n[1], "验证失败");
+          console.error(key, "\n应该等于[", JSON.stringify(n[0]), "]\n实际等于[", JSON.stringify(n[1]), "]验证失败");
         }
       }
       console.log("-----------------------------------------------")
