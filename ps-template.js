@@ -32,9 +32,10 @@
       TAG = `\\<${ blank }*(${ word }+)${ blank }*((?:${ attrLike })*)${ blank }*(\\\/)?${ blank }*\\>`;
     let match, tagStack = [], textStack = [],
       root = rs = {
-        localName : "DocumentFragment",
+        nodeName : "DocumentFragment",
         nodeType : 11,
-        children : []
+        children : [],
+        childNodes : []
       },
       expr = {
         "HEAD" : {
@@ -44,15 +45,18 @@
             delete match.item;
             obj = {
               nodeType : 1,
-              localName : match[1],
-              params : getParams(match[2])
+              nodeName : match[1].toUpperCase(),
+              tagName : match[1].toUpperCase(),
+              attributes : getParams(match[2])
             };
             Object.defineProperty(obj, "parentNode", {
               enumerable : false,
               value : rs
             })
             rs.children = rs.children || [];
-            pushTextNode(rs.children, str.slice(0, match.index));
+            rs.childNodes = rs.childNodes || [];
+            pushTextNode(rs.childNodes, str.slice(0, match.index));
+            rs.childNodes.push(obj);
             rs.children.push(obj);
             rs = match[3] ? rs : (tagStack.push(match[1]) , obj);
             return str.slice(match[0].length + match.index);
@@ -62,8 +66,8 @@
           exp : null,
           handler : function(str, match){
             tagStack.pop();
-            rs.children = rs.children || [];
-            pushTextNode(rs.children, str.slice(0, match.index));
+            rs.childNodes = rs.childNodes || [];
+            pushTextNode(rs.childNodes, str.slice(0, match.index));
             rs = rs.parentNode;
             return str.slice(match[0].length + match.index);
           }
@@ -72,22 +76,24 @@
           exp : new RegExp(COMMONS),
           handler : function(str, match){
             var matchEnd = new RegExp("--\\>", "g").exec(str), obj;
-            rs.children = rs.children || [];
+            rs.childNodes = rs.childNodes || [];
             if(matchEnd){
               obj = {
+                nodeName : "#comment",
                 nodeType : 8,
                 nodeValue : str.slice(match.index + 4, matchEnd.index)
               };
-              pushTextNode(rs.children, str.slice(0, match.index));
-              rs.children.push(obj);
+              pushTextNode(rs.childNodes, str.slice(0, match.index));
+              rs.childNodes.push(obj);
               return str.slice(matchEnd.index + 3);
             } else {
               obj = {
+                nodeName : "#comment",
                 nodeType : 8,
                 nodeValue : str.slice(match.index + 4)
               };
-              pushTextNode(rs.children, str.slice(0, match.index));
-              rs.children.push(obj);
+              pushTextNode(rs.childNodes, str.slice(0, match.index));
+              rs.childNodes.push(obj);
               return null;
             }
           }
@@ -107,11 +113,17 @@
       while(item = textStack.pop()){
         str = item + str;
       }
+      arr.push({
+        nodeName : "#text",
+        nodeType : 3,
+        nodeValue : str
+      });
+      /**
       !new RegExp("^" + blank + "*$").test(str) && arr.push({
         localName : "text",
         nodeType : 3,
         nodeValue : str
-      });
+      });**/
     }
     function check(str){
       var match, m, item, len = tagStack.length;
@@ -135,7 +147,7 @@
       }
       str = match;
     };
-    pushTextNode(root.children, str);
+    pushTextNode(root.childNodes, str);
     return root;
   }
   function json2html(json, beautify){

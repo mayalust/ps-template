@@ -13,25 +13,29 @@
   <script>
     var testcases = [], testarea = document.getElementById("testarea");
     function check(node, tc){
-      var checkParams = ["nodeType", "nodeValue", "tag"];
+      var checkParams = ["nodeType", "nodeValue", "nodeName", "tagName"], key;
+      console.log("-----------------------------------------------")
       for(var i = 0, n = []; i < checkParams.length; i++){
-        n[0] = node[checkParams[i]];
-        n[1] = tc[checkParams[i]];
-        if(n[0] != n[1]){
-          console.dir(node);
-          console.error("'s " + checkParams[i] + "[" + n[0] +"]and vnode", tc, "'s " + checkParams[i] + "[" + n[1] + "] is not the same");
+        key = checkParams[i];
+        n[0] = node[key];
+        n[1] = tc[key];
+        if(n[0] == n[1]){
+          console.log(key, "=", n[0], ",验证通过");
+        } else {
+          console.error(key, "=", n[0], ",实际等于", n[1], "验证失败");
         }
       }
+      console.log("-----------------------------------------------")
     }
     function recursive(node, tc, depth){
       depth ? check(node, tc) : null;
       for(var i = 0; i < node.childNodes.length; i++){
-        recursive(node.childNodes[i], tc.children[i], depth+1);
+        recursive(node.childNodes[i], tc.childNodes[i], depth+1);
       }
     }
     function assert(json){
       testarea.innerHTML = this["case"];
-      recursive(testarea, json, 0)
+      recursive(testarea, json, 0);
     }
     testcases[0] = {
       "case" : "asd<div ng-repeat=\"item in repeats\" style=\"color:red\">\n\
@@ -51,9 +55,9 @@
     };
     for(var i = 0, m, p, assert; i < testcases.length; i++){
       m = psTemplate.html2json(testcases[i]["case"]);
-      p = psTemplate.beautify(testcases[i]["case"]);
+      //p = psTemplate.beautify(testcases[i]["case"]);
       testcases[i]["assert"](m);
-      console.log(p);
+      console.log("case", i, "===================验证完毕================");
     }
   </script>
 </body>
