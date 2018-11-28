@@ -22,6 +22,11 @@
   function isEmpty(obj){
     return isUndefined(obj) || isNull(obj);
   }
+  function writeContentToParentNodes(node, str){
+    while(node = node.parentNode){
+      node.innerHTML += str;
+    }
+  }
   function html2json(str){
     const blank = `(?:[\\s\\n])`,
       word = `[\\w-$@]`,
@@ -35,7 +40,8 @@
         nodeName : "DocumentFragment",
         nodeType : 11,
         children : [],
-        childNodes : []
+        childNodes : [],
+        innerHTML : ""
       },
       expr = {
         "HEAD" : {
@@ -47,7 +53,8 @@
               nodeType : 1,
               nodeName : match[1].toUpperCase(),
               tagName : match[1].toUpperCase(),
-              attributes : getParams(match[2])
+              attributes : getParams(match[2]),
+              innerHTML : ""
             };
             Object.defineProperty(obj, "parentNode", {
               enumerable : false,
@@ -59,6 +66,7 @@
             rs.childNodes.push(obj);
             rs.children.push(obj);
             rs = match[3] ? rs : (tagStack.push(match[1]) , obj);
+            writeContentToParentNodes(obj, str.slice(0, match[0].length + match.index));
             return str.slice(match[0].length + match.index);
           }
         },
@@ -68,6 +76,8 @@
             tagStack.pop();
             rs.childNodes = rs.childNodes || [];
             pushTextNode(rs.childNodes, str.slice(0, match.index));
+            rs.innerHTML += str.slice(0, match.index);
+            writeContentToParentNodes(rs, str.slice(0, match[0].length + match.index));
             rs = rs.parentNode;
             return str.slice(match[0].length + match.index);
           }
@@ -75,27 +85,21 @@
         "COMMON" : {
           exp : new RegExp(COMMONS),
           handler : function(str, match){
-            var matchEnd = new RegExp("--\\>", "g").exec(str), obj;
+            var matchEnd = new RegExp("--\\>", "g").exec(str),
+              obj = {
+              nodeName : "#comment",
+              nodeType : 8,
+              nodeValue : matchEnd ? str.slice(match.index + 4, matchEnd.index) : str.slice(match.index + 4),
+            };
+            Object.defineProperty(obj, "parentNode", {
+              enumerable : false,
+              value : rs
+            });
+            writeContentToParentNodes(rs, str.slice(0, match[0].length + match.index));
             rs.childNodes = rs.childNodes || [];
-            if(matchEnd){
-              obj = {
-                nodeName : "#comment",
-                nodeType : 8,
-                nodeValue : str.slice(match.index + 4, matchEnd.index)
-              };
-              pushTextNode(rs.childNodes, str.slice(0, match.index));
-              rs.childNodes.push(obj);
-              return str.slice(matchEnd.index + 3);
-            } else {
-              obj = {
-                nodeName : "#comment",
-                nodeType : 8,
-                nodeValue : str.slice(match.index + 4)
-              };
-              pushTextNode(rs.childNodes, str.slice(0, match.index));
-              rs.childNodes.push(obj);
-              return null;
-            }
+            pushTextNode(rs.childNodes, str.slice(0, match.index));
+            rs.childNodes.push(obj);
+            return matchEnd ? str.slice(matchEnd.index + 3) : null;
           }
         }
       };
@@ -109,10 +113,6 @@
       return obj;
     }
     function pushTextNode(arr, str){
-      let item;
-      while(item = textStack.pop()){
-        str = item + str;
-      }
       arr.push({
         nodeName : "#text",
         nodeType : 3,
@@ -120,7 +120,7 @@
       });
       /**
       !new RegExp("^" + blank + "*$").test(str) && arr.push({
-        localName : "text",
+        nodeName : "text",
         nodeType : 3,
         nodeValue : str
       });**/
@@ -140,11 +140,7 @@
         ? item["handler"](str, match)
         : undefined
     }
-    while(true){
-      match = check(str);
-      if(typeof match === "undefined"){
-        break;
-      }
+    while(match = check(str)){
       str = match;
     };
     pushTextNode(root.childNodes, str);
@@ -166,11 +162,11 @@
     let renderMethods = {
       header : {
         1 : function(node, depth){
-          switch (typeof node.localName === "string" ? node.localName.toUpperCase() : "") {
+          switch (typeof node.nodeName === "string" ? node.nodeName.toUpperCase() : "") {
             case "INPUT" :
-              return format("<" + node.localName + params2String(node.params) + "/>", depth);
+              return format("<" + node.nodeName.toLowerCase() + params2String(node.attributes) + "/>", depth);
             default :
-              return format("<" + node.localName + params2String(node.params) + ">", depth);
+              return format("<" + node.nodeName.toLowerCase() + params2String(node.attributes) + ">", depth);
           }
         },
         3 : function(node, depth){
@@ -182,11 +178,11 @@
       },
       tail : {
         1 : function(node, depth){
-          switch (typeof node.localName === "string" ? node.localName.toUpperCase() : "") {
+          switch (typeof node.nodeName === "string" ? node.nodeName.toUpperCase() : "") {
             case "INPUT" :
               return "";
             default :
-              return format("</" + node.localName + ">", depth);
+              return format("</" + node.nodeName.toLowerCase() + ">", depth);
           }
         }
       }
@@ -220,8 +216,8 @@
     }
     function recursive(node, depth){
       var str = renderHead(node, depth);
-      for(var i = 0; i < (node.children ? node.children.length : 0); i++){
-        str += recursive(node.children[i], depth+1);
+      for(var i = 0; i < (node.childNodes ? node.childNodes.length : 0); i++){
+        str += recursive(node.childNodes[i], depth+1);
       }
       str += renderTail(node, depth);
       return str;
