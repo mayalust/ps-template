@@ -29,6 +29,9 @@
     }
     function recursive(node, tc, depth){
       depth ? check(node, tc) : null;
+      if((tc.childNodes ? tc.childNodes.length : 0 ) !== node.childNodes.length){
+        console.error("长度不等验证失败");
+      }
       for(var i = 0; i < node.childNodes.length; i++){
         recursive(node.childNodes[i], tc.childNodes[i], depth+1);
       }
@@ -37,14 +40,15 @@
       testarea.innerHTML = this["case"];
       recursive(testarea, json, 0);
     }
-    testcases[0] = {
+    /**
+    testcases.push({
       "case" : "asd<div ng-repeat=\"item in repeats\" style=\"color:red\">\n\
         <input type=\"radio\"/>\n\
         <div class=\"form-control\">123</div>\
       </div>def",
       "assert" : assert
-    };
-    testcases[1] = {
+    });**/
+    testcases.push({
       "case" : "\
         <div scopped>\
           <!--ppp-->\
@@ -52,13 +56,13 @@
           <span>123</span>\
         </div>",
       "assert" : assert
-    };
+    });
     for(var i = 0, m, p, assert; i < testcases.length; i++){
       m = psTemplate.html2json(testcases[i]["case"]);
       p = psTemplate.json2html(m);
       testcases[i]["assert"](m);
       console.log(p);
-      console.log("case", i, "===================验证完毕================");
+      //console.log("case", i, "===================验证完毕================");
     }
   </script>
 </body>

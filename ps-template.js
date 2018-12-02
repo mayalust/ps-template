@@ -116,6 +116,7 @@
       return obj;
     }
     function pushTextNode(arr, str){
+      typeof str === "string" && str.length > 0 &&
       arr.push({
         nodeName : "#text",
         nodeType : 3,
@@ -129,7 +130,7 @@
       });**/
     }
     function check(str){
-      var match, m, item, len = tagStack.length;
+      var match, m, item, len = tagStack.length, rs;
       expr["TAIL"].exp = new RegExp("\\<\\s*\\/\\s*(" + tagStack[len - 1] + ")\\s*\\>");
       for(var i in expr){
         m = expr[i]["exp"].exec(str);
@@ -139,13 +140,15 @@
           ) : ( item = expr[i], m )
         ) : match;
       }
-      return match
+      rs = match
         ? item["handler"](str, match)
         : undefined
+      return rs;
     }
-    while(match = check(str)){
+    while(typeof (match = check(str)) !== "undefined"){
       str = match;
     };
+    console.log(str);
     pushTextNode(root.childNodes, str);
     return root;
   }
