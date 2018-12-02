@@ -35,6 +35,9 @@
       ATTRS = `(${ word }+)${ blank }*(?:=${ blank }*(${ quate }))?`,
       COMMONS = `\\<\\!\\--`,
       TAG = `\\<${ blank }*(${ word }+)${ blank }*((?:${ attrLike })*)${ blank }*(\\\/)?${ blank }*\\>`;
+    function isSelfCircledTag(str){
+      return /(?:INPUT)|(?:HR)|(?:BR)/g.test(str.toUpperCase());
+    }
     let match, tagStack = [], textStack = [],
       root = rs = {
         nodeName : "DocumentFragment",
@@ -65,7 +68,7 @@
             pushTextNode(rs.childNodes, str.slice(0, match.index));
             rs.childNodes.push(obj);
             rs.children.push(obj);
-            rs = match[3] ? rs : (tagStack.push(match[1]) , obj);
+            rs = isSelfCircledTag(match[1]) || match[3] ? rs : (tagStack.push(match[1]) , obj);
             writeContentToParentNodes(obj, str.slice(0, match[0].length + match.index));
             return str.slice(match[0].length + match.index);
           }

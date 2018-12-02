@@ -42,12 +42,15 @@
     }
     /**
     testcases.push({
-      "case" : "asd<div ng-repeat=\"item in repeats\" style=\"color:red\">\n\
-        <input type=\"radio\"/>\n\
-        <div class=\"form-control\">123</div>\
-      </div>def",
+      "case" : `<div class="angular-dataTable mobile-suitable">
+        <div class="ps-grid">
+          <input>
+          <div class="angular-dataTable-header" ng-if="source.showheader != false" style="margin : 0px auto 5px auto">
+          </div>
+        </div>
+      </div>`,
       "assert" : assert
-    });**/
+    });
     testcases.push({
       "case" : "\
         <div scopped>\
@@ -56,6 +59,249 @@
           <span>123</span>\
         </div>",
       "assert" : assert
+    });
+     **/
+    testcases.push({
+      "assert" : assert,
+      "case" : `<div class="angular-dataTable mobile-suitable">
+        <div class="ps-grid">
+            <div class="angular-dataTable-header" ng-if="source.showheader != false" style="margin : 0px auto 5px auto">
+                <a href="" download="export.xlsx" id="_exportFile"></a>
+                <input type="file" id="_uploadFile" style="display:none;">
+                <span ng-repeat="head in getTableButtons()">
+            <button ng-disabled="head.disabled(dataTable.data)"
+                    class="btn btn-sm"
+                    ng-click="buttonClick(head, row, $event);$event.stopPropagation();" type="button"
+                    ng-class="buttonClass(head)"
+                    style="margin-right: 5px;">
+              <i ng-class="head.icon"></i>
+              <span ng-class="hidden-sm" ng-bind="getButtonLabel(head)"></span>
+            </button>
+            <span ng-if="head.type=='multiSelect'" data-id="head.id" data-mark="head.mark"
+                  data-submit="head.events.submit(data)" data-options="head.options" multi-select></span>
+            </span>
+                <div ng-if="source.showSearch" class="combined-query pull-right">
+                    <div class="btn-group" ng-class="{true:'open', false:''}[open]"
+                         style="display:block; float:left; margin-top : 0;">
+                        <button type="button" ng-disabled="wholeDisabled" class="btn btn-default btn-sm dropdown-toggle"
+                                ng-click="searchTypeClick();">
+                            <span ng-bind="{true:'查询条件',false:getLabel(querytype)}[querytype==undefined]"></span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>
+                                <a role="button" ng-click="conditionClick(header, key);"
+                                   ng-repeat="(key, header) in getSearchBody()"
+                                   ng-bind="getLabel(header)">
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <span ng-if="querytype.search=='text' || querytype.search == undefined"
+                          style="display:block; float:left; margin : 0 6px;">
+                 <input class="form-control input-sm"
+                        ng-model="$parent.$parent.$parent.keyInput"
+                        maxlength="40" type="text"/>
+                </span>
+                    <span ng-if="querytype.search=='select'" style="display:block; float:left; margin : 0 6px;">
+                 <select ng-model="$parent.$parent.keyInput"
+                         class="form-control"
+                         style="padding-top: 2px;"
+                         ng-options="item[querytype.filterFormat.value]
+                          as item[querytype.filterFormat.label]
+                         for item in querytype.options"><option value="">请选择...</option></select>
+            </span>
+                    <span ng-if="querytype.type=='selectObj'" style="display:block; float:left; margin : 0 6px;">
+                 <select ng-model="$parent.$parent.keyInput"
+                         class="form-control"
+                         style="padding-top: 2px;"
+                         ng-options="item[querytype.filterFormat.label] for item in querytype.options"><option value="">请选择...</option></select>
+            </span>
+                    <span ng-if="querytype.type=='tree'" style="display:block; float:left; margin : 0 10px;">
+                <div class="dropdowntree select-sm"
+                     placeholder="请选择..."
+                     showclear="true"
+                     ng-model="$parent.$parent.keyInput"
+                     dt-key="querytype.key"
+                     options="querytype.options"
+                     dt-mark="querytype.mark"></div>
+            </span>
+                    <span ng-if="querytype.type=='status'" style="display:block; float:left; margin : 0 10px;">
+                 <select ng-model="$parent.$parent.keyInput"
+                         class="form-control"
+                         style="padding-top: 2px;"
+                         ng-options="item.value as item.label for item in [{label : '已启用', value : 0},{label : '未启用', value : -1}]"><option
+                         value="">请选择...</option></select>
+            </span>
+                    <button class="btn btn-primary btn-sm" style="display:block; float:left;margin-top : 0;"
+                            ng-disabled="wholeDisabled" ng-click="goSearch()" type="button">
+                        <i class="fa fa-search"></i>
+                        <span class="hidden-sm">查询</span>
+                    </button>
+                </div>
+            </div>
+            <!-- dataTable's body, include filter search etc.-->
+        <div class="angular-dataTable-body">
+        <div class="dataTables_wrapper dt-bootstrap no-footer">
+        <div class="dataTables_scroll">
+        <div class="dataTables" style="position: relative; overflow: auto; width: 100%;">
+        <table width="100%" class="table table-hover no-footer dataTable"
+        role="grid" aria-describedby="DataTables_Table_0_info"
+        style="width: 100%;">
+        <thead>
+        <tr role="row" style="height: 0px;">
+        <th style="width:14px;"
+        ng-if="dataTable.showSelector != false"
+        style="width:20px;"
+        ng-click="allClick()">
+        <span ng-show="dataTable.multipleSelect">
+        <input type="checkbox"
+        ng-model="$parent.allcheck"
+        ng-disabled="wholeDisabled"/>
+        </span>
+        <span ng-show="!dataTable.multipleSelect">
+        </span>
+        </th>
+        <th ng-if="dataTable.showIndex==true" style="width:20px;">序号</th>
+        <th ng-repeat="(key, header) in dataTable.body"
+        ng-click="sortClick(header, key)"
+        ng-class="sorting(sortBy, header, key)">
+        <div class="dataTables_sizing" ng-bind="getLabel(header)"></div>
+        </th>
+        <th ng-if="dataTable.hasButtons()" ng-style="btnColStyle(row)">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-if="showNoData()">
+        <td ng-attr-colspan="{{$parent.getFullLength()}}" style="text-align: center;">
+        没有符合条件的记录
+        </td>
+        </tr>
+        <tr ng-if="inlineAddObj.show">
+        <td ng-if="dataTable.showSelector != false">
+        <input type="checkbox"/>
+        </td>
+        <td ng-if="dataTable.showIndex==true">0</td>
+        <td ng-repeat="(key, header) in dataTable.body">
+        <span ng-if="dataTable.inlineAdd[key].type === 'input' || dataTable.inlineAdd[key].type == undefined">
+        <input class="form-control" type="text" ng-model="inlineAddObj.data[key]"/>
+        </span>
+        <span ng-if="dataTable.inlineAdd[key].type === 'select'">
+        <select class="form-control"
+        ng-model="inlineAddObj.data[key]"
+        ng-options="item as item.label for item in dataTable.inlineAdd[key].options">
+        </select>
+        </span>
+        </td>
+        <td data-field-label="操作" style="width: 120px;">
+        <div class="btn-group btn-group-sm">
+        <button class="btn btn-default" ng-click="inlineAddConfirm()">
+        确定
+        </button>
+        <button class="btn btn-default" ng-click="inlineAddCancel()">
+        取消
+        </button>
+        </div>
+        </td>
+        </tr>
+        <!-- ng-repeat="row in currentPageData = (filterResult = (dataTable.data | filtersort : dataTable.body : sortBy : searchBy : dataTable.search) | limitTo : getSize() : getStartPoint())" -->
+        <tr role="row" ng-if="currentPageData.length > 0"
+        ng-repeat="row in currentPageData"
+        ng-init="rowInx = $index"
+        ng-class="trClass(row, source.rowclass)">
+        <td ng-if="dataTable.showSelector != false">
+        <input type="checkbox"
+        ng-change="selectRow(row)"
+        ng-model="row.selected"/>
+        </td>
+        <td ng-bind="$index+1" ng-if="dataTable.showIndex==true"></td>
+        <td ng-repeat="(key, header) in dataTable.body"
+        data-field-label="{{header.label || header}}">
+
+        <ps-tools-grid data-header="header" data-key="key" data-row="row"
+        index="$index"></ps-tools-grid>
+        </td>
+        <td ng-if="dataTable.hasButtons()" data-field-label="操作"
+        ng-style="btnColStyle(row)">
+        <div class="btn-group btn-group-sm"
+        ng-style="btnColStyle(row)"
+        ng-class="{true:'open', false :''}[row.open]">
+        <button ng-repeat="op in getBodyButtons(row) | limitTo : 2"
+        ng-disabled="op.disabled(row)"
+        ng-class="renderClass(op.class, row)"
+        ng-click="buttonClick(op, row, $event)">
+        <i class="fa hidden-lg hidden-md hidden-sm"
+        ng-class="getButtonIcon(op)"></i>
+        <span class="hidden-xs" ng-bind="getButtonLabel(op)"></span>
+        </button>
+        <button ng-if="getBodyButtons(row).length > 2"
+        type="button" class="btn btn-default dropdown-toggle"
+        ng-disabled="row.disabled"
+        ng-click="moreClick(op, row, $event)">
+        更多
+        <span class="caret"></span>
+        </button>
+        </div>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        </div>
+        <div class="row" ng-if="hasPages()">
+        <div ng-class="{true:'col-sm-3', false : 'col-sm-2'}[source.miniSize == true]">
+        <div class="dataTables_length"><label>每页显示
+        <select class="form-control input-sm"
+        ng-disabled="wholeDisabled != false && pageResize"
+        ng-change="sizeChange(page.size)"
+        ng-model="page.size" ng-options="size as size for size in sizes"></select>
+        项</label></div>
+        </div>
+        <div ng-class="{true:'col-sm-3', false : 'col-sm-4'}[source.miniSize == true]">
+        <div class="dataTables_info" aria-live="polite" ng-bind="pageDescription()"></div>
+        </div>
+        <div class="col-sm-6">
+        <div class="dataTables_paginate paging_simple_numbers" id="DataTables_Table_0_paginate">
+        <ul class="pagination">
+        <li class="paginate_button previous" ng-class="isPrevBtnDisabled()"
+        ng-click="page.prevPage()">
+        <a>上页</a>
+        </li>
+        <li class="paginate_button"
+        ng-class="{true:'active',false:''}[page.current == 0]"
+        ng-if="true" ng-click="page.moveTo(0)">
+        <a>1</a>
+        </li>
+        <li class="paginate_button disabled" ng-if="ifBeforeMarkShow()">
+        <a>…</a>
+        </li>
+        <li class="paginate_button"
+        ng-click="page.moveTo(pg)"
+        ng-class="{true:'active',false:''}[page.current == pg]"
+        ng-repeat="pg in middleRange()">
+        <a ng-bind="pg + 1"></a>
+        </li>
+        <li class="paginate_button disabled" ng-if="ifAfterMarkShow()">
+        <a>…</a>
+        </li>
+        <li class="paginate_button"
+        ng-class="{true:'active',false:''}[page.current == page.total - 1]"
+        ng-if="page.total > 1"
+        ng-click="page.moveTo(page.total - 1)">
+        <a ng-bind="page.total"></a>
+        </li>
+        <li class="paginate_button next" ng-class="isNextBtnDisabled()"
+        ng-click="page.nextPage()">
+        <a>下页</a>
+        </li>
+        </ul>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>`
     });
     for(var i = 0, m, p, assert; i < testcases.length; i++){
       m = psTemplate.html2json(testcases[i]["case"]);
