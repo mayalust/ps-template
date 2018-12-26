@@ -1,6 +1,6 @@
 {
   "name": "proudsmart-template",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "proudsmart template, switcher between html string and json",
   "main": "ps-template.js",
   "scripts": {
