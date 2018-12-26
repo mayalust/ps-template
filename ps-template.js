@@ -151,7 +151,6 @@
     while(typeof (match = check(str)) !== "undefined"){
       str = match;
     };
-    console.log(str);
     pushTextNode(root.childNodes, str);
     return root;
   }
